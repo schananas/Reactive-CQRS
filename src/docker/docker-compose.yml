@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq-storage:/rabbitmq
+  axon-server:
+    image: axoniq/axonserver
+    environment:
+      - AXONSERVER_EVENTSTORE=/eventstore
+      - AXONSERVER_CONTROLDB=/controldb
+      - AXONSERVER_HOSTNAME=axon-server
+      - AXONSERVER_NAME=axon-server
+    volumes:
+      - axon-server-eventstore2:/eventstore
+      - axon-server-controldb2:/controldb
+    ports:
+      - '8024:8024'
+      - '8124:8124'
+volumes:
+  axon-server-eventstore2:
+  axon-server-controldb2:
+  rabbitmq-storage:
