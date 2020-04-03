@@ -39,7 +39,7 @@ public class ReactiveRabbitReceiver {
                 .delaySubscription(Duration.ofSeconds(5))
                 .map(this::toCommand)
                 .doOnNext(it->  LOGGER.info("COMMAND {}",it))
-                .flatMapSequential(this::sendCommand,1)
+                .flatMap(this::sendCommand,1)
                 .limitRate(1)
                 .onBackpressureError()
                 .subscribe(aSubcriber);
