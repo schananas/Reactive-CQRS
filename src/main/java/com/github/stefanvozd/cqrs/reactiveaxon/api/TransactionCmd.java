@@ -4,9 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public interface TransactionCmd {
+public interface TransactionCmd extends BankAccountCmd {
 
-    UUID getAccountId();
     BigDecimal getAmount();
     String getDescription();
 

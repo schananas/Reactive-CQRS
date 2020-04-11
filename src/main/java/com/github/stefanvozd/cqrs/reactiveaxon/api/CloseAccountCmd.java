@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Value
-public class CloseAccountCmd implements Serializable {
+public class CloseAccountCmd implements BankAccountCmd, Serializable {
 
     @TargetAggregateIdentifier UUID accountId;
     AccountCloseReason reason;

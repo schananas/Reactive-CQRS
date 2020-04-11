@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Value
-public class DebitAccountCmd implements TransactionCmd,Serializable {
+public class DebitAccountCmd implements TransactionCmd ,Serializable {
 
     @TargetAggregateIdentifier UUID accountId;
     BigDecimal amount;

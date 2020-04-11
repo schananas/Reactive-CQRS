@@ -1,5 +1,6 @@
-package com.github.stefanvozd.cqrs.reactiveaxon.projection;
+package com.github.stefanvozd.cqrs.reactiveaxon.projection.reactive;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
@@ -9,8 +10,9 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Repository public
-interface AccountRepository extends ReactiveCrudRepository<AccountSummary, String> {
+@Profile("reactive")
+@Repository
+public interface R2dbcAccountRepository extends ReactiveCrudRepository<AccountSummary, String> {
 
     @Modifying
     @Query("UPDATE account_summary SET balance = :balance WHERE account_id = :accountId")

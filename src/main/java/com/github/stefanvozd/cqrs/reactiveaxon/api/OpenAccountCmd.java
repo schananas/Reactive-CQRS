@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Value
-public class OpenAccountCmd implements Serializable {
+public class OpenAccountCmd implements BankAccountCmd, Serializable {
 
     @TargetAggregateIdentifier UUID accountId;
     AccountHolder accountHolder;

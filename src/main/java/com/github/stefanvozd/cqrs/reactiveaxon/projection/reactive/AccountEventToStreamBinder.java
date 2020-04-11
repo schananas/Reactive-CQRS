@@ -1,4 +1,4 @@
-package com.github.stefanvozd.cqrs.reactiveaxon.projection;
+package com.github.stefanvozd.cqrs.reactiveaxon.projection.reactive;
 
 
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountClosedEvt;
@@ -11,18 +11,20 @@ import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.ResetHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.FluxSink;
 
-@ProcessingGroup("evtHandlers")
+@Profile("reactive")
+@ProcessingGroup("reactiveEventHandlers")
 @Component
 @Slf4j
 public class AccountEventToStreamBinder {
 
-    private final AccountRepository accountRepository;
+    private final R2dbcAccountRepository r2dbcAccountRepository;
 
-    public AccountEventToStreamBinder(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public AccountEventToStreamBinder(R2dbcAccountRepository r2dbcAccountRepository) {
+        this.r2dbcAccountRepository = r2dbcAccountRepository;
     }
 
     @EventHandler
@@ -45,18 +47,19 @@ public class AccountEventToStreamBinder {
 
     @EventHandler
     public void on(AccountCreditedEvt evt,
-                   @Qualifier("accountCreditedEvtOutputStream") FluxSink<AccountCreditedEvt> accountCreditedEvtOutputStream) {
-        accountCreditedEvtOutputStream.next(evt);
+                   @Qualifier("accountCreditedEvtOutputStream") FluxSink<AccountCreditedEvt> eventStream) {
+        eventStream.next(evt);
     }
 
     @EventHandler
-    public void on(AccountDebitedEvt evt, @Qualifier("accountDebitedEvtOutputStream") FluxSink<AccountDebitedEvt> accountDebitedEvtOutputStream) {
-        accountDebitedEvtOutputStream.next(evt);
+    public void on(AccountDebitedEvt evt,
+                   @Qualifier("accountDebitedEvtOutputStream") FluxSink<AccountDebitedEvt> eventStream) {
+        eventStream.next(evt);
     }
 
     @ResetHandler
     public void onReset() {
         log.info("Handling ResetTriggeredEvent on Account");
-        accountRepository.deleteAll().subscribe();
+        r2dbcAccountRepository.deleteAll().subscribe();
     }
 }

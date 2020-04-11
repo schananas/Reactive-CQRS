@@ -1,4 +1,4 @@
-package com.github.stefanvozd.cqrs.reactiveaxon.projection;
+package com.github.stefanvozd.cqrs.reactiveaxon.projection.reactive;
 
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountClosedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountCreditedEvt;
@@ -7,12 +7,14 @@ import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountOpenedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.TransactionEvt;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
+@Profile("reactive")
 @Configuration
-public class ProjectionStreamEmmiter {
+public class ProjectionStreamEmitter {
 
     private final int BUFFER_SIZE = 2500;
 
