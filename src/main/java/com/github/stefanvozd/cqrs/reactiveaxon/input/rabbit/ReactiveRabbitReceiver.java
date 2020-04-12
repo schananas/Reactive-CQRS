@@ -11,17 +11,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.SerializationUtils;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 @DependsOn({"bankAccount"})
 @Component
 @Slf4j
 public class ReactiveRabbitReceiver {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveRabbitReceiver.class);
 
     private final Flux<Delivery> deliveryFlux;
     private final ReactiveCommandGateway reactiveCommandGateway;
@@ -33,41 +34,22 @@ public class ReactiveRabbitReceiver {
         this.reactiveCommandGateway = reactiveCommandGateway;
     }
 
-    @PostConstruct
-    public void startReceivingParallelBackPressure(){
-        deliveryFlux
-                .map(this::toCommand)
-                .groupBy(BankAccountCmd::getAccountId)
-                .flatMap(this::sendWithBackPressure,3)
-        .subscribe();
-    }
 
     private BankAccountCmd toCommand(Delivery msg) {
         return (BankAccountCmd) SerializationUtils.deserialize(msg.getBody());
     }
 
-    public Flux<Object> sendWithBackPressure(Flux<BankAccountCmd> commands)  {
-        return commands
-                .doOnNext(it -> LOGGER.info("COMMAND {}", it))
-                .concatMap(this::sendCommand);
+
+    @PostConstruct
+    public void startReceivingSequentialBackPressure(){
+        Flux<BankAccountCmd> inputStream = deliveryFlux
+                .map(this::toCommand)
+                .doOnNext(it->log.debug("Command delivered: {}",it))
+                .doOnRequest(l->log.debug("Requesting next {} commands",l));
+
+        reactiveCommandGateway.<BankAccountCmd,UUID>sendAll(inputStream)
+                .delaySubscription(Duration.ofSeconds(5))
+                .subscribe();
     }
 
-    private Mono<Object> sendCommand(Object c) {
-        return reactiveCommandGateway.send(c)
-                                     .doOnSuccess(it-> LOGGER.info("SENT {}", it));
-    }
-
-//    @PostConstruct
-//    public void startReceivingSequentialBackPressure(){
-//        Flux<BankAccountCmd> inputStream = deliveryFlux.map(this::toCommand);
-//
-//        sendWithBackPressure(inputStream)
-//                .delaySubscription(Duration.ofSeconds(5))
-//                .subscribe();
-//    }
-
-
-
-
-    //todo Request/reply example
 }

@@ -28,12 +28,12 @@ public class ReactiveRabbitSender {
 
     @GetMapping("/send/rabbit")
     public void rabbitSender() {
-        BankAccountCmdGenerator bankAccountCmdGenerator = new BankAccountCmdGenerator(50);
+        BankAccountCmdGenerator bankAccountCmdGenerator = new BankAccountCmdGenerator(500);
 
-        EmitterProcessor<Object> data = EmitterProcessor.create(100000);
+        EmitterProcessor<Object> data = EmitterProcessor.create(50);
         FluxSink<Object> sink = data.sink();
 
-        for (int i = 0; i<1000; i++) {
+        for (int i = 0; i<10; i++) {
             sink.next(bankAccountCmdGenerator.next());
         }
 
