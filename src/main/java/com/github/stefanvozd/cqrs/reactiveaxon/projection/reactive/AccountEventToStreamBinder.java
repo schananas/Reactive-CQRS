@@ -5,11 +5,11 @@ import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountClosedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountCreditedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountDebitedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountOpenedEvt;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.TransactionEvt;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.ResetHandler;
+import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -31,12 +31,6 @@ public class AccountEventToStreamBinder {
     public void on(AccountOpenedEvt evt,
                    @Qualifier("accountOpenedEvtOutputStream") FluxSink<AccountOpenedEvt> accountOpenedEvtOutputStream) {
         accountOpenedEvtOutputStream.next(evt);
-    }
-
-    @EventHandler
-    public void on(TransactionEvt evt,
-                   @Qualifier("transactionEvtOutputStream") FluxSink<TransactionEvt> eventStream) {
-        eventStream.next(evt);
     }
 
     @EventHandler
@@ -62,4 +56,10 @@ public class AccountEventToStreamBinder {
         log.info("Handling ResetTriggeredEvent on Account");
         r2dbcAccountRepository.deleteAll().subscribe();
     }
+
+    @QueryHandler
+    public Boolean handle(FindProjectionProducedByCommand query) {
+        return true;
+    }
+
 }

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SerializationUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.FluxSink;
@@ -27,20 +28,20 @@ public class ReactiveRabbitSender {
 
 
     @GetMapping("/send/rabbit")
-    public void rabbitSender() {
-        BankAccountCmdGenerator bankAccountCmdGenerator = new BankAccountCmdGenerator(500);
+    public void rabbitSender(@RequestParam("commands") int commands) {
+        BankAccountCmdGenerator bankAccountCmdGenerator = new BankAccountCmdGenerator(50000);
 
-        EmitterProcessor<Object> data = EmitterProcessor.create(50);
+        EmitterProcessor<Object> data = EmitterProcessor.create(commands + 1);
         FluxSink<Object> sink = data.sink();
 
-        for (int i = 0; i<10; i++) {
+        for (int i = 0; i < commands; i++) {
             sink.next(bankAccountCmdGenerator.next());
         }
 
-       sender.send(
-                data.onBackpressureError()
-                    .doOnNext(it -> LOGGER.debug("SENDING"))
-                    .map(it -> new OutboundMessage("", Messaging.BANK_QUEUE,Objects.requireNonNull(SerializationUtils.serialize(it)))))
-                    .subscribe();
+        sender.send(
+                data
+                        .doOnNext(it -> LOGGER.debug("SENDING"))
+                        .map(it -> new OutboundMessage("", Messaging.BANK_QUEUE, Objects.requireNonNull(SerializationUtils.serialize(it)))))
+                .subscribe();
     }
 }

@@ -1,17 +1,19 @@
 package com.github.stefanvozd.cqrs.reactiveaxon.api;
 
 import lombok.Value;
-import lombok.experimental.Wither;
+import lombok.With;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Value
-public class AccountOpenedEvt implements Serializable {
+public class AccountOpenedEvt implements BankAccountEvt, Serializable {
 
     UUID accountId;
     AccountHolder accountHolder;
-    @Wither BigDecimal newBalance;
+    @With
+    BigDecimal newBalance;
+    UUID producedByCommandId;
 
 }

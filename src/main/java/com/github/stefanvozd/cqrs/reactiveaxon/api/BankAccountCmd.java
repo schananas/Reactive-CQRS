@@ -6,4 +6,10 @@ public interface BankAccountCmd {
 
     UUID getAccountId();
 
+    UUID commandId = UUID.randomUUID();
+
+    default UUID getCommandId() {
+        return commandId;
+    }
+
 }

@@ -16,10 +16,10 @@ public interface R2dbcAccountRepository extends ReactiveCrudRepository<AccountSu
 
     @Modifying
     @Query("UPDATE account_summary SET balance = :balance WHERE account_id = :accountId")
-    Mono<Boolean> updateBalance(UUID accountId, BigDecimal balance);
+    Mono<AccountSummary> updateBalance(UUID accountId, BigDecimal balance);
 
     @Modifying
     @Query("DELETE from account_summary WHERE account_id=:accountId")
-    Mono<Boolean> deleteByAccountId(UUID accountId);
+    Mono<AccountSummary> deleteByAccountId(UUID accountId);
 
 }

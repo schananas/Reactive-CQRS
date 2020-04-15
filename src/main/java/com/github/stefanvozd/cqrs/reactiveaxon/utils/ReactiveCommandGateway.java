@@ -1,19 +1,13 @@
 package com.github.stefanvozd.cqrs.reactiveaxon.utils;
 
-import com.github.stefanvozd.cqrs.reactiveaxon.api.BankAccountCmd;
-import com.github.stefanvozd.cqrs.reactiveaxon.input.rabbit.ReactiveRabbitReceiver;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
 public class ReactiveCommandGateway {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCommandGateway.class);
 
     private final CommandGateway commandGateway;
 

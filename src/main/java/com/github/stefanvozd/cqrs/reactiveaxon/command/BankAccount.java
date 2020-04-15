@@ -1,15 +1,7 @@
 package com.github.stefanvozd.cqrs.reactiveaxon.command;
 
 
-import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountClosedEvt;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountCreditedEvt;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountDebitedEvt;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountOpenedEvt;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.CloseAccountCmd;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.CreditAccountCmd;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.DebitAccountCmd;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.OpenAccountCmd;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.TransactionCmd;
+import com.github.stefanvozd.cqrs.reactiveaxon.api.*;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -21,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
@@ -42,8 +35,8 @@ public class BankAccount implements Serializable {
     @CommandHandler
     public BankAccount(OpenAccountCmd cmd) {
         log.debug("Handling {}", cmd);
-        val newBalance = BigDecimal.ZERO.setScale(SCALE);
-        apply(new AccountOpenedEvt(cmd.getAccountId(), cmd.getAccountHolder(), newBalance));
+        val newBalance = BigDecimal.ZERO.setScale(SCALE, RoundingMode.CEILING);
+        apply(new AccountOpenedEvt(cmd.getAccountId(), cmd.getAccountHolder(), newBalance, cmd.getCommandId()));
     }
 
     @CommandHandler
@@ -51,7 +44,7 @@ public class BankAccount implements Serializable {
         log.debug("Handling {}", cmd);
         validateTransactionCmd(cmd);
         val newBalance = balance.add(cmd.getAmount());
-        apply(new AccountCreditedEvt(accountId, cmd.getAmount(), cmd.getDescription(), newBalance));
+        apply(new AccountCreditedEvt(accountId, cmd.getAmount(), cmd.getDescription(), newBalance, cmd.getCommandId()));
     }
 
     @CommandHandler
@@ -59,7 +52,7 @@ public class BankAccount implements Serializable {
         log.debug("Handling {}", cmd);
         validateTransactionCmd(cmd);
         val newBalance = balance.subtract(cmd.getAmount());
-        apply(new AccountDebitedEvt(accountId, cmd.getAmount(), cmd.getDescription(), newBalance));
+        apply(new AccountDebitedEvt(accountId, cmd.getAmount(), cmd.getDescription(), newBalance, cmd.getCommandId()));
     }
 
     private void validateTransactionCmd(TransactionCmd cmd) {
@@ -70,7 +63,7 @@ public class BankAccount implements Serializable {
     @CommandHandler
     public void handle(CloseAccountCmd cmd) {
         log.debug("Handling {}", cmd);
-        apply(new AccountClosedEvt(accountId, cmd.getReason()));
+        apply(new AccountClosedEvt(accountId, cmd.getReason(), cmd.getCommandId()));
     }
 
     @EventSourcingHandler

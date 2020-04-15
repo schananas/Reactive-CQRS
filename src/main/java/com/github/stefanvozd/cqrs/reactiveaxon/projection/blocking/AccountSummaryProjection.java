@@ -5,7 +5,6 @@ import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountClosedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountCreditedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountDebitedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountOpenedEvt;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.TransactionEvt;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
@@ -34,12 +33,6 @@ public class AccountSummaryProjection {
                 evt.getAccountHolder().getFirstName(),
                 evt.getAccountHolder().getLastName(),
                 evt.getNewBalance()));
-    }
-
-    @EventHandler
-    public void on(TransactionEvt evt,
-                   AccountRepository accountRepository) {
-        accountRepository.updateBalance(evt.getAccountId(), evt.getNewBalance());
     }
 
     @EventHandler

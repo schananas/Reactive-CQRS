@@ -4,7 +4,6 @@ import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountClosedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountCreditedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountDebitedEvt;
 import com.github.stefanvozd.cqrs.reactiveaxon.api.AccountOpenedEvt;
-import com.github.stefanvozd.cqrs.reactiveaxon.api.TransactionEvt;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -31,22 +30,6 @@ public class ProjectionStreamEmitter {
     public FluxSink<AccountOpenedEvt> accountOpenedEvtOutputStream() {
         return accountOpenedEvtOutputStream;
     }
-
-    //TransactionEvt
-    EmitterProcessor<TransactionEvt> transactionEvtInputStream = EmitterProcessor.create(BUFFER_SIZE);
-    FluxSink<TransactionEvt> transactionEvtOutputStream = transactionEvtInputStream.sink();
-
-    @Bean
-    public Flux<TransactionEvt> transactionEvtInputStream() {
-        return transactionEvtInputStream.publish(BUFFER_SIZE).autoConnect();
-    }
-
-    @Bean
-    public FluxSink<TransactionEvt> transactionEvtOutputStream() {
-        return transactionEvtOutputStream;
-    }
-
-
 
     //AccountClosedEvt
     EmitterProcessor<AccountClosedEvt> accountClosedEvtInputStream = EmitterProcessor.create(BUFFER_SIZE);
