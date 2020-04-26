@@ -7,7 +7,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - postgresql-storage:/postgresql
+      - postgresql-storage:/var/lib/postgresql/data
     ports:
       - 5432:5432
   rabbitmq:
@@ -17,28 +17,19 @@ services:
       - '15672:15672'
     volumes:
       - rabbitmq-storage:/rabbitmq
-  axon-server:
-    image: axoniq/axonserver
-    environment:
-      - AXONSERVER_EVENTSTORE=/eventstore
-      - AXONSERVER_CONTROLDB=/controldb
-      - AXONSERVER_HOSTNAME=axon-server
-      - AXONSERVER_NAME=axon-server
-      - AXON_AXONSERVER_INITIAL-NR-OF-PERMITS=5
-      - AXON_AXONSERVER_NR-OF-NEW-PERMITS=5
-      - AXON_AXONSERVER_NEW-PERMITS-THRESHOLD=5
-      - AXON_AXONSERVER_INITIAL_NR_OF_PERMITS=5
-      - AXON_AXONSERVER_NR_OF_NEW_PERMITS=5
-      - AXON_AXONSERVER_NEW_PERMITS_THRESHOLD=5
-      - AXON_AXONSERVER_INITIALNROFPERMITS=5
-      - AXON_AXONSERVER_NROFNEWPERMITS=5
-      - AXON_AXONSERVER_NEWPERMITSTHRESHOLD=5
-    volumes:
-      - axon-server-eventstore2:/eventstore
-      - axon-server-controldb2:/controldb
-    ports:
-      - '8024:8024'
-      - '8124:8124'
+#  axon-server:
+#    image: axoniq/axonserver
+#    environment:
+#      - AXONSERVER_EVENTSTORE=/eventstore
+#      - AXONSERVER_CONTROLDB=/controldb
+#      - AXONSERVER_HOSTNAME=axon-server
+#      - AXONSERVER_NAME=axon-server
+#    volumes:
+#      - axon-server-eventstore2:/eventstore
+#      - axon-server-controldb2:/controldb
+#    ports:
+#      - '8024:8024'
+#      - '8124:8124'
 volumes:
   axon-server-eventstore2:
   axon-server-controldb2:
