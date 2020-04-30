@@ -1,7 +1,8 @@
 package com.github.stefanvozd.cqrs.reactiveaxon.rest.projection;
 
 
-import com.github.stefanvozd.cqrs.reactiveaxon.rest.api.*;
+import com.github.stefanvozd.cqrs.reactiveaxon.common.api.*;
+import com.github.stefanvozd.cqrs.reactiveaxon.rest.api.FindAccountUpdateByCommandId;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.ResetHandler;

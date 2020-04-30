@@ -1,9 +1,13 @@
 package com.github.stefanvozd.cqrs.reactiveaxon.rest.controller;
 
-import com.github.stefanvozd.cqrs.reactiveaxon.rest.api.*;
+import com.github.stefanvozd.cqrs.reactiveaxon.common.api.CloseAccountCmd;
+import com.github.stefanvozd.cqrs.reactiveaxon.common.api.CreditAccountCmd;
+import com.github.stefanvozd.cqrs.reactiveaxon.common.api.DebitAccountCmd;
+import com.github.stefanvozd.cqrs.reactiveaxon.common.api.OpenAccountCmd;
+import com.github.stefanvozd.cqrs.reactiveaxon.common.utils.ReactiveCommandGateway;
+import com.github.stefanvozd.cqrs.reactiveaxon.rest.api.FindAccountUpdateByCommandId;
 import com.github.stefanvozd.cqrs.reactiveaxon.rest.projection.AccountQueryUpdate;
 import com.github.stefanvozd.cqrs.reactiveaxon.rest.projection.AccountSummary;
-import com.github.stefanvozd.cqrs.reactiveaxon.rest.utils.ReactiveCommandGateway;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;

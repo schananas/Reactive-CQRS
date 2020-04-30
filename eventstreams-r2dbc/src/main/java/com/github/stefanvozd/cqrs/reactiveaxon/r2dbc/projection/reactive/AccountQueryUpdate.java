@@ -1,15 +1,12 @@
-package com.github.stefanvozd.cqrs.reactiveaxon.rest.projection;
+package com.github.stefanvozd.cqrs.reactiveaxon.r2dbc.projection.reactive;
 
 import com.github.stefanvozd.cqrs.reactiveaxon.common.api.QueryEventType;
 import lombok.Value;
-
-import java.util.UUID;
 
 @Value
 public class AccountQueryUpdate {
 
     AccountSummary accountSummary;
-    UUID producedByCommandId;
     QueryEventType type;
 
 }

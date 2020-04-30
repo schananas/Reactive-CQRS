@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
-        <!--        <module>eventstreams-r2dbc</module>-->
+        <module>eventstreams-r2dbc</module>
         <!--        <module>reactive-event-bus</module>-->
         <!--        <module>reactive-sse-websockets</module>-->
         <module>reactive-rest</module>
