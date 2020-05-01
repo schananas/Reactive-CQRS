@@ -99,7 +99,7 @@ public class AccountController {
     //wrap SubscriptionQuery with Mono and defer, so we can use Reactor's retry mechanism
     //with retry mechanism our code will be resilient
     private Mono<SubscriptionQueryResult<Void, AccountQueryUpdate>> callSubscriptionQuery(UUID commandId) {
-        return Mono.defer(() -> Mono.just(
+        return Mono.defer(() -> Mono.fromCallable(() ->
                 queryGateway
                         .subscriptionQuery(
                                 new FindAccountUpdateByCommandId(commandId),

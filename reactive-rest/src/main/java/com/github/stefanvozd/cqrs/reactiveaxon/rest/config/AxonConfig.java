@@ -13,7 +13,7 @@ public class AxonConfig {
 
     @Bean
     public Retry retryStrategy() {
-        return Retry.fixedDelay(30, Duration.ofSeconds(3));
+        return Retry.fixedDelay(3, Duration.ofSeconds(10));
     }
 
     //define correlation data provider for command id
