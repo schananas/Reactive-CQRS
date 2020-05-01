@@ -76,7 +76,6 @@ public class AccountController {
                         .retryWhen(retryStrategy)
                         .subscribeOn(Schedulers.parallel()),
                 getAccountUpdateByCommandId(commandId)
-                        .retryWhen(retryStrategy)
                         .subscribeOn(Schedulers.parallel()))
                 .map(Tuple2::getT2);
         //we only care about update result (T2)
@@ -89,6 +88,7 @@ public class AccountController {
         int TIMEOUT_SECONDS = 30;
 
         return callSubscriptionQuery(commandId)
+                .retryWhen(retryStrategy)
                 .map(it -> it.updates().doFinally(signal -> it.close()))
                 .flatMapMany(Flux::from)
                 .next() //wait for first update
