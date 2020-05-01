@@ -37,6 +37,7 @@ public class BankAccount implements Serializable {
     public BankAccount(OpenAccountCmd cmd) {
         log.debug("Handling {}", cmd);
         val newBalance = BigDecimal.ZERO.setScale(SCALE, RoundingMode.CEILING);
+        //attach command id as event meta-data
         apply(new AccountOpenedEvt(cmd.getAccountId(), cmd.getAccountHolder(), newBalance), MetaData.with("producedByCommandId", cmd.getCommandId()));
     }
 

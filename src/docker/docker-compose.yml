@@ -7,7 +7,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - postgresql-storage:/var/lib/postgresql/data
+      - postgresql-storage-rx:/var/lib/postgresql/data
     ports:
       - 5432:5432
   rabbitmq:
@@ -17,21 +17,21 @@ services:
       - '15672:15672'
     volumes:
       - rabbitmq-storage:/rabbitmq
-#  axon-server:
-#    image: axoniq/axonserver
-#    environment:
-#      - AXONSERVER_EVENTSTORE=/eventstore
-#      - AXONSERVER_CONTROLDB=/controldb
-#      - AXONSERVER_HOSTNAME=axon-server
-#      - AXONSERVER_NAME=axon-server
-#    volumes:
-#      - axon-server-eventstore2:/eventstore
-#      - axon-server-controldb2:/controldb
-#    ports:
-#      - '8024:8024'
-#      - '8124:8124'
+  axon-server:
+    image: axoniq/axonserver
+    environment:
+      - AXONSERVER_EVENTSTORE=/eventstore
+      - AXONSERVER_CONTROLDB=/controldb
+      - AXONSERVER_HOSTNAME=axon-server
+      - AXONSERVER_NAME=axon-server
+    volumes:
+      - axon-server-eventstore2:/eventstore
+      - axon-server-controldb2:/controldb
+    ports:
+      - '8024:8024'
+      - '8124:8124'
 volumes:
   axon-server-eventstore2:
   axon-server-controldb2:
   rabbitmq-storage:
-  postgresql-storage:
+  postgresql-storage-rx:

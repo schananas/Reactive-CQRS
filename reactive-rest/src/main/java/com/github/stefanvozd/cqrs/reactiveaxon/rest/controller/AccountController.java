@@ -13,9 +13,11 @@ import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
 import org.axonframework.queryhandling.SubscriptionQueryResult;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -28,11 +30,13 @@ public class AccountController {
 
     private final ReactiveCommandGateway reactiveCommandGateway;
     private final QueryGateway queryGateway;
+    private final Retry retryStrategy;
 
     public AccountController(ReactiveCommandGateway reactiveCommandGateway,
-                             QueryGateway queryGateway) {
+                             QueryGateway queryGateway, Retry retryStrategy) {
         this.reactiveCommandGateway = reactiveCommandGateway;
         this.queryGateway = queryGateway;
+        this.retryStrategy = retryStrategy;
     }
 
     @PostMapping
@@ -68,25 +72,39 @@ public class AccountController {
         //each Mono should use subscribeOn(Scheduler) to get out of the common thread from where they're merged
         //this is a safe way not to miss an update, which could happen if we first send command and then subscribe for updates
         return (sendCommandMono) -> Mono.zip(
-                sendCommandMono.subscribeOn(Schedulers.parallel()),
-                getAccountUpdateByCommandId(commandId)).subscribeOn(Schedulers.parallel())
-                .map(Tuple2::getT2); //we only care about update result
+                sendCommandMono
+                        .retryWhen(retryStrategy)
+                        .subscribeOn(Schedulers.parallel()),
+                getAccountUpdateByCommandId(commandId)
+                        .retryWhen(retryStrategy)
+                        .subscribeOn(Schedulers.parallel()))
+                .map(Tuple2::getT2);
+        //we only care about update result (T2)
+        //T1 is command handler result
     }
 
     private Mono<AccountSummary> getAccountUpdateByCommandId(
             UUID commandId) {
-        SubscriptionQueryResult<Void, AccountQueryUpdate> queryResult = queryGateway
-                .subscriptionQuery(
-                        new FindAccountUpdateByCommandId(commandId),
-                        ResponseTypes.instanceOf(Void.class), //we dont care about initial result set
-                        ResponseTypes.instanceOf(AccountQueryUpdate.class));
 
-        int TIMEOUT_SECONDS = 5;
-        return queryResult
-                .updates()
-                .next()
+        int TIMEOUT_SECONDS = 30;
+
+        return callSubscriptionQuery(commandId)
+                .map(it -> it.updates().doFinally(signal -> it.close()))
+                .flatMapMany(Flux::from)
+                .next() //wait for first update
                 .map(AccountQueryUpdate::getAccountSummary)
-                .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
-                .doFinally(it -> queryResult.close());
+                .timeout(Duration.ofSeconds(TIMEOUT_SECONDS));
+    }
+
+    //wrap SubscriptionQuery with Mono and defer, so we can use Reactor's retry mechanism
+    //with retry mechanism our code will be resilient
+    private Mono<SubscriptionQueryResult<Void, AccountQueryUpdate>> callSubscriptionQuery(UUID commandId) {
+        return Mono.defer(() -> Mono.just(
+                queryGateway
+                        .subscriptionQuery(
+                                new FindAccountUpdateByCommandId(commandId),
+                                ResponseTypes.instanceOf(Void.class), //we don't care about initial result set
+                                ResponseTypes.instanceOf(AccountQueryUpdate.class))
+        ));
     }
 }

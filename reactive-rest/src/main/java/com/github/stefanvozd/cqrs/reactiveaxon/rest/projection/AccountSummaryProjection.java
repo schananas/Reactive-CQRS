@@ -29,12 +29,14 @@ public class AccountSummaryProjection {
     @EventHandler
     public void on(AccountOpenedEvt evt, @MetaDataValue("producedByCommandId") UUID producedByCommandId,
                    AccountRepository accountRepository) {
+        //correlation data provider will provide us with command id from event meta-data
         AccountSummary accountSummary = accountRepository.save(new AccountSummary(
                 null,
                 evt.getAccountId(),
                 evt.getAccountHolder().getFirstName(),
                 evt.getAccountHolder().getLastName(),
                 evt.getNewBalance()));
+        //attach command id to an update
         emitAccountUpdate(accountSummary, producedByCommandId, QueryEventType.ADDED);
     }
 
@@ -67,6 +69,7 @@ public class AccountSummaryProjection {
     private void emitAccountUpdate(AccountSummary accountSummary, UUID producedByCommandId, QueryEventType type) {
         queryUpdateEmitter.emit(
                 FindAccountUpdateByCommandId.class,
+                //this query defines that u can only get updates that are produced by provided command id
                 query -> query.getCommandId().equals(producedByCommandId),
                 new AccountQueryUpdate(accountSummary, producedByCommandId, type)
         );
