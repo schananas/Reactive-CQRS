@@ -96,15 +96,15 @@ public class AccountController {
                 .timeout(Duration.ofSeconds(TIMEOUT_SECONDS));
     }
 
-    //wrap SubscriptionQuery with Mono and defer, so we can use Reactor's retry mechanism
+    //wrap SubscriptionQuery into lazy Mono, so we can use Reactor's retry mechanism
     //with retry mechanism our code will be resilient
     private Mono<SubscriptionQueryResult<Void, AccountQueryUpdate>> callSubscriptionQuery(UUID commandId) {
-        return Mono.defer(() -> Mono.fromCallable(() ->
+        return Mono.fromCallable(() ->
                 queryGateway
                         .subscriptionQuery(
                                 new FindAccountUpdateByCommandId(commandId),
                                 ResponseTypes.instanceOf(Void.class), //we don't care about initial result set
                                 ResponseTypes.instanceOf(AccountQueryUpdate.class))
-        ));
+        );
     }
 }
